@@ -1,5 +1,6 @@
 package org.example.glucon.UserCare;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,21 +20,30 @@ public class UserCare {
     @Id
     @GeneratedValue
     @Column(name = "id", length = 50)
-    private String id;
+    private Long id;
+
+    @Column(name = "user_id")
+    @Builder.Default
+    private int user_id = 0;
 
     @Column(name = "member_id")
-    private int memberId;
+    @Builder.Default
+    private int member_id = 0;
 
     @Column(name = "reply_id")
-    private int replyId;
+    @Builder.Default
+    private int reply_id = 0;
 
     @Column(name = "message", length = 100)
-    private String message;
+    @Builder.Default
+    private String message = "";
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime created_at;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updated_at;
 
 }

@@ -6,21 +6,22 @@ import org.apache.logging.log4j.Logger;
 import org.example.glucon.BaseResponse;
 import org.example.glucon.Default.Default;
 import org.example.glucon.Default.DefaultRepository;
+import org.example.glucon.HbA1c.HbA1c;
+import org.example.glucon.HbA1c.HbA1cRepository;
 import org.example.glucon.MedicalInfo.MedicalInfo;
 import org.example.glucon.MedicalInfo.MedicalInfoRepository;
 import org.example.glucon.Setting.Setting;
 import org.example.glucon.Setting.SettingRepository;
-import org.example.glucon.UserProfile.response.MedicalInfoResponse;
+import org.example.glucon.UserCare.UserCareRepository;
+import org.example.glucon.UserProfile.response.*;
 import org.example.glucon.UserSet.request.UserSetUpdateRequest;
-import org.example.glucon.UserProfile.response.UserInfo;
-import org.example.glucon.UserProfile.response.UserResponse;
-import org.example.glucon.UserProfile.response.Vip;
 import org.example.glucon.UserSet.UserSet;
 import org.example.glucon.UserSet.UserSetRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -35,6 +36,9 @@ public class UserProfileService {
 
     private final MedicalInfoRepository medicalInfoRepository;
 
+    private final HbA1cRepository HbA1cRepository;
+
+    private final UserCareRepository userCareRepository;
     public UserResponse getUser() {
 
         Optional<UserProfile> firstUserProfile = userProfileRepository.findFirstByOrderByIdAsc();
@@ -114,6 +118,30 @@ public class UserProfileService {
                         .created_at(dateTime)
                         .updated_at(dateTime)
                         .build())
+                .build();
+    }
+
+    public A1cResponse getA1c() {
+
+        Optional<HbA1c> firstHbA1c = HbA1cRepository.findFirstByOrderByIdAsc();
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = now.format(formatter);
+        LocalDateTime dateTime = LocalDateTime.parse(formattedDateTime, formatter);
+
+        return A1cResponse.builder()
+                .status("0")
+                .message("ok")
+                .a1cs(HbA1cRepository.findAll())
+                .build();
+    }
+
+    public UserCareResponse getUserCare() {
+        return UserCareResponse.builder()
+                .status("0")
+                .message("ok")
+                .cares(userCareRepository.findAll())
                 .build();
     }
 }

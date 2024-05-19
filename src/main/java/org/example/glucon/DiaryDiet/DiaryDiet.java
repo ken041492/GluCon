@@ -18,32 +18,38 @@ public class DiaryDiet {
     @Id
     @GeneratedValue
     @Column(name = "id", length = 50)
-    private String id;
+    private Long id;
 
     @Column(name = "description", length = 100)
-    private int description;
+    @Builder.Default
+    private int description = 0;
 
     @Column(name = "meal")
-    private int meal;
+    @Builder.Default
+    private int meal = 0;
 
     @Column(name = "tag", length = 100)
-    private String tag;
+    @Builder.Default
+    private String tag = "";
 
     @Column(name = "image")
-    private int image;
+    @Builder.Default
+    private int image = 0;
 
     @Column(name = "lat")
-    private double lat;
+    @Builder.Default
+    private String lat = "";
 
     @Column(name = "lng")
-    private double lng;
+    @Builder.Default
+    private String lng = "";
 
     @Column(name = "recorded_at")
-    private LocalDateTime recordedAt;
+    private LocalDateTime recorded_at;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private LocalDateTime created_at;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private LocalDateTime updated_at;
 }

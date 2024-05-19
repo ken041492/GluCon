@@ -17,14 +17,15 @@ public class Share {
     @Id
     @GeneratedValue
     @Column(name = "id", length = 50)
-    private String id;
+    private Long id;
 
     @Column(name = "fid", length = 50)
-    private String fid;
+    @Builder.Default
+    private String fid = "";
 
     @Column(name = "data_type", length = 100)
-    private int dataType;
+    private int data_type;
 
     @Column(name = "relation_type", length = 100)
-    private int relationType;
+    private int relation_type;
 }

@@ -43,4 +43,14 @@ public class UserProfileController {
     public ResponseEntity<MedicalInfoResponse> getMedicalProfile() {
         return ResponseEntity.ok(service.getMedicalInfo());
     }
+
+    @GetMapping("/user/a1c")
+    public ResponseEntity<BaseResponse> getA1c() {
+        return ResponseEntity.ok(service.getA1c());
+    }
+
+    @GetMapping("/user/care")
+    public ResponseEntity<BaseResponse> getUserCare() {
+        return ResponseEntity.ok(service.getUserCare());
+    }
 }

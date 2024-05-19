@@ -10,19 +10,33 @@ import org.example.glucon.Auth.request.VerificationRequest;
 import org.example.glucon.Auth.response.AuthLoginResponse;
 import org.example.glucon.Auth.response.SendVerificationResponse;
 import org.example.glucon.BaseResponse;
+import org.example.glucon.BloodPressure.BloodPressure;
+import org.example.glucon.BloodPressure.BloodPressureRepository;
+import org.example.glucon.BloodSugar.BloodSugar;
+import org.example.glucon.BloodSugar.BloodSugarRepository;
 import org.example.glucon.Default.Default;
 import org.example.glucon.Default.DefaultRepository;
+import org.example.glucon.DiaryDiet.DiaryDiet;
+import org.example.glucon.DiaryDiet.DiaryDietRepository;
+import org.example.glucon.HbA1c.HbA1c;
+import org.example.glucon.HbA1c.HbA1cRepository;
 import org.example.glucon.MedicalInfo.MedicalInfo;
 import org.example.glucon.MedicalInfo.MedicalInfoRepository;
 import org.example.glucon.Setting.Setting;
 import org.example.glucon.Setting.SettingRepository;
+import org.example.glucon.Share.Share;
+import org.example.glucon.Share.ShareRepository;
 import org.example.glucon.User.Role;
 import org.example.glucon.User.User;
 import org.example.glucon.User.UserRepository;
+import org.example.glucon.UserCare.UserCare;
+import org.example.glucon.UserCare.UserCareRepository;
 import org.example.glucon.UserProfile.UserProfile;
 import org.example.glucon.UserProfile.UserProfileRepository;
 import org.example.glucon.UserSet.UserSet;
 import org.example.glucon.UserSet.UserSetRepository;
+import org.example.glucon.Weight.Weight;
+import org.example.glucon.Weight.WeightRepository;
 import org.example.glucon.config.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -50,6 +64,20 @@ public class AuthService {
     private final DefaultRepository defaultRepository;
 
     private final MedicalInfoRepository medicalInfoRepository;
+
+    private final HbA1cRepository hbA1cRepository;
+
+    private final UserCareRepository userCareRepository;
+
+    private final ShareRepository shareRepository;
+
+    private final WeightRepository weightRepository;
+
+    private final BloodPressureRepository bloodPressureRepository;
+
+    private final BloodSugarRepository bloodSugarRepository;
+
+    private final DiaryDietRepository diaryDietRepository;
 
     private final JwtService jwtService;
 
@@ -149,11 +177,56 @@ public class AuthService {
                         .updated_at(dateTime)
                         .build();
 
+                var hbA1c = HbA1c.builder()
+                        .recorded_at(dateTime)
+                        .created_at(dateTime)
+                        .updated_at(dateTime)
+                        .build();
+
+                var userCare = UserCare.builder()
+                        .created_at(dateTime)
+                        .updated_at(dateTime)
+                        .build();
+
+                var share = Share.builder()
+                        .build();
+
+                var weight = Weight.builder()
+                        .recorded_at(dateTime)
+                        .created_at(dateTime)
+                        .updated_at(dateTime)
+                        .build();
+
+                var bloodPressure = BloodPressure.builder()
+                        .recorded_at(dateTime)
+                        .created_at(dateTime)
+                        .updated_at(dateTime)
+                        .build();
+
+                var bloodSugar = BloodSugar.builder()
+                        .recorded_at(dateTime)
+                        .created_at(dateTime)
+                        .updated_at(dateTime)
+                        .build();
+
+                var diaryDiet = DiaryDiet.builder()
+                        .recorded_at(dateTime)
+                        .created_at(dateTime)
+                        .updated_at(dateTime)
+                        .build();
+
                 userProfileRepository.save(userProfile);
                 userSetRepository.save(userSet);
                 settingRepository.save(setting);
                 defaultRepository.save(_default);
                 medicalInfoRepository.save(medicalInfo);
+                hbA1cRepository.save(hbA1c);
+                userCareRepository.save(userCare);
+                shareRepository.save(share);
+                weightRepository.save(weight);
+                bloodPressureRepository.save(bloodPressure);
+                bloodSugarRepository.save(bloodSugar);
+                diaryDietRepository.save(diaryDiet);
 
                 return AuthLoginResponse.builder()
                         .status("0")

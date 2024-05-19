@@ -1,5 +1,6 @@
 package org.example.glucon.Weight;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,23 +19,29 @@ public class Weight {
     @Id
     @GeneratedValue
     @Column(name = "id", length = 50)
-    private String id;
+    private Long id;
 
     @Column(name = "weight", precision = 3)
-    private float weight;
+    @Builder.Default
+    private float weight = 0.0f;
 
     @Column(name = "body_fat", precision = 3)
-    private float bodyFat;
+    @Builder.Default
+    private float bodyFat = 0.0f;
 
     @Column(name = "bmi", precision = 3)
-    private float bmi;
+    @Builder.Default
+    private float bmi = 0.0f;
 
     @Column(name = "recorded_at")
-    private LocalDateTime recordedAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime recorded_at;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime created_at;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updated_at;
 }
