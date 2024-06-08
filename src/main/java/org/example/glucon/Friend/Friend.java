@@ -1,5 +1,6 @@
 package org.example.glucon.Friend;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,26 +20,32 @@ public class Friend {
     @Id
     @GeneratedValue
     @Column(name = "id", length = 50)
-    private String id;
+    private Integer id;
 
-    @Column(name = "userId")
-    private long userId;
+    @Column(name = "user_id")
+    private long user_id;
 
-    @Column(name = "relationId")
-    private long relationId;
+    @Column(name = "relation_id")
+    @Builder.Default
+    private long relation_id = 0;
 
     @Column(name = "friend_type")
-    private int friendType;
+    @Builder.Default
+    private int friend_type = 0;
 
     @Column(name = "status")
-    private int status;
+    @Builder.Default
+    private int status = 0;
 
     @Column(name = "read")
-    private boolean read;
+    @Builder.Default
+    private boolean read = false;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime created_at;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private LocalDateTime updated_at;
 }

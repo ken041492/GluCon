@@ -1,4 +1,4 @@
-package org.example.glucon.Share;
+package org.example.glucon.News;
 
 import lombok.RequiredArgsConstructor;
 import org.example.glucon.BaseResponse;
@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/api/share")
+@RequestMapping("/api/news")
 @RequiredArgsConstructor
-public class ShareController {
+public class NewsController {
 
-    private final ShareService service;
+    private final NewsService service;
 
-    @GetMapping("/{type}")
-    public ResponseEntity<BaseResponse> getShare(@PathVariable("type") int relation_id) {
-        return ResponseEntity.ok(service.getShare(relation_id));
+    @GetMapping()
+    public ResponseEntity<BaseResponse> getNews() {
+        return ResponseEntity.ok(service.getNews());
     }
 }
