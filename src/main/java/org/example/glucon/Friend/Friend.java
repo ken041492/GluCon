@@ -22,17 +22,20 @@ public class Friend {
     @Column(name = "id", length = 50)
     private Integer id;
 
-    @Column(name = "user_id")
+    // 自己id
+    @Column(name = "user_id") // 寄送邀請者的 id
     private long user_id;
 
+    //好友id
     @Column(name = "relation_id")
     @Builder.Default
-    private long relation_id = 0;
+    private long relation_id = 0; // 接收邀請者的 id
 
     @Column(name = "friend_type")
     @Builder.Default
     private int friend_type = 0;
 
+    //1:接受、2:拒絕
     @Column(name = "status")
     @Builder.Default
     private int status = 0;

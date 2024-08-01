@@ -1,6 +1,7 @@
 package org.example.glucon.Auth;
 
 import jakarta.servlet.http.HttpSession;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.example.glucon.Auth.request.CheckVerificationRequest;
@@ -38,7 +39,12 @@ import org.example.glucon.UserSet.UserSetRepository;
 import org.example.glucon.Weight.Weight;
 import org.example.glucon.Weight.WeightRepository;
 import org.example.glucon.config.JwtService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +53,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -83,9 +90,15 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
 
+    public static Integer loginId;
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
     public List<User> getUsers() {
         return repository.findAll();
     }
+
     public BaseResponse register(RegisterRequest request) {
 
         Optional<User> optionalUser = repository.findByEmail(request.getEmail());
@@ -94,11 +107,97 @@ public class AuthService {
             return BaseResponse.FAILED("失敗");
         }
 
+        Random random = new Random();
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = now.format(formatter);
+        LocalDateTime dateTime = LocalDateTime.parse(formattedDateTime, formatter);
+
         var user = User.builder()
                 .email(request.getEmail())
                 .password(request.getPassword())
                 .role(Role.USER)
                 .build();
+
+        var userProfile = UserProfile.builder()
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .code(generateCode(6))
+                .created_at(dateTime)
+                .updated_at(dateTime)
+                .build();
+
+        var userSet = UserSet.builder()
+                .build();
+
+        var setting = Setting.builder()
+                .created_at(dateTime)
+                .updated_at(dateTime)
+                .build();
+
+        var _default = Default.builder()
+                .user_id(random.nextLong(1,301))
+                .created_at(dateTime)
+                .updated_at(dateTime)
+                .build();
+
+        var medicalInfo = MedicalInfo.builder()
+                .created_at(dateTime)
+                .updated_at(dateTime)
+                .build();
+
+        var hbA1c = HbA1c.builder()
+                .recorded_at(dateTime)
+                .created_at(dateTime)
+                .updated_at(dateTime)
+                .build();
+
+        var userCare = UserCare.builder()
+                .created_at(dateTime)
+                .updated_at(dateTime)
+                .build();
+
+        var share = Share.builder()
+                .build();
+
+        var weight = Weight.builder()
+                .recorded_at(dateTime)
+                .created_at(dateTime)
+                .updated_at(dateTime)
+                .build();
+
+        var bloodPressure = BloodPressure.builder()
+                .recorded_at(dateTime)
+                .created_at(dateTime)
+                .updated_at(dateTime)
+                .build();
+
+        var bloodSugar = BloodSugar.builder()
+                .recorded_at(dateTime)
+                .created_at(dateTime)
+                .updated_at(dateTime)
+                .build();
+
+        var diaryDiet = DiaryDiet.builder()
+                .recorded_at(dateTime)
+                .created_at(dateTime)
+                .updated_at(dateTime)
+                .build();
+
+        userProfileRepository.save(userProfile);
+        userSetRepository.save(userSet);
+        settingRepository.save(setting);
+        defaultRepository.save(_default);
+        medicalInfoRepository.save(medicalInfo);
+        hbA1cRepository.save(hbA1c);
+        userCareRepository.save(userCare);
+        shareRepository.save(share);
+        weightRepository.save(weight);
+        bloodPressureRepository.save(bloodPressure);
+        bloodSugarRepository.save(bloodSugar);
+        diaryDietRepository.save(diaryDiet);
+
         repository.save(user);
 
         return BaseResponse.SUCCESS("成功");
@@ -119,14 +218,14 @@ public class AuthService {
         if(optionalUser.isPresent()) {
             return SendVerificationResponse.builder()
                     .status("0")
-                    .code(generateVerificationCode(6))
+                    .code(generateCode(6))
                     .message("成功")
                     .build();
         }
         return BaseResponse.FAILED("The given data was invalid.");
     }
 
-    private String generateVerificationCode(int length) {
+    private String generateCode(int length) {
         SecureRandom random = new SecureRandom();
         StringBuilder sb = new StringBuilder(length);
         for(int i = 0; i < length; i++) {
@@ -145,88 +244,9 @@ public class AuthService {
             User user = optionalUser.get();
             if(user.getPassword().equals(request.getPassword())) {
                 var jwtToken = jwtService.generateToken(user);
+                loginId = user.getId();
 
-                LocalDateTime now = LocalDateTime.now();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                String formattedDateTime = now.format(formatter);
-                LocalDateTime dateTime = LocalDateTime.parse(formattedDateTime, formatter);
-
-                var userProfile = UserProfile.builder()
-                        .email(request.getEmail())
-                        .password(request.getPassword())
-                        .created_at(dateTime)
-                        .updated_at(dateTime)
-                        .build();
-
-                var userSet = UserSet.builder()
-                        .build();
-
-                var setting = Setting.builder()
-                        .created_at(dateTime)
-                        .updated_at(dateTime)
-                        .build();
-
-
-                var _default = Default.builder()
-                        .created_at(dateTime)
-                        .updated_at(dateTime)
-                        .build();
-
-                var medicalInfo = MedicalInfo.builder()
-                        .created_at(dateTime)
-                        .updated_at(dateTime)
-                        .build();
-
-                var hbA1c = HbA1c.builder()
-                        .recorded_at(dateTime)
-                        .created_at(dateTime)
-                        .updated_at(dateTime)
-                        .build();
-
-                var userCare = UserCare.builder()
-                        .created_at(dateTime)
-                        .updated_at(dateTime)
-                        .build();
-
-                var share = Share.builder()
-                        .build();
-
-                var weight = Weight.builder()
-                        .recorded_at(dateTime)
-                        .created_at(dateTime)
-                        .updated_at(dateTime)
-                        .build();
-
-                var bloodPressure = BloodPressure.builder()
-                        .recorded_at(dateTime)
-                        .created_at(dateTime)
-                        .updated_at(dateTime)
-                        .build();
-
-                var bloodSugar = BloodSugar.builder()
-                        .recorded_at(dateTime)
-                        .created_at(dateTime)
-                        .updated_at(dateTime)
-                        .build();
-
-                var diaryDiet = DiaryDiet.builder()
-                        .recorded_at(dateTime)
-                        .created_at(dateTime)
-                        .updated_at(dateTime)
-                        .build();
-
-                userProfileRepository.save(userProfile);
-                userSetRepository.save(userSet);
-                settingRepository.save(setting);
-                defaultRepository.save(_default);
-                medicalInfoRepository.save(medicalInfo);
-                hbA1cRepository.save(hbA1c);
-                userCareRepository.save(userCare);
-                shareRepository.save(share);
-                weightRepository.save(weight);
-                bloodPressureRepository.save(bloodPressure);
-                bloodSugarRepository.save(bloodSugar);
-                diaryDietRepository.save(diaryDiet);
+                redisTemplate.opsForValue().set("loginId", loginId);
 
                 return AuthLoginResponse.builder()
                         .status("0")
@@ -235,6 +255,5 @@ public class AuthService {
             }
         }
         return BaseResponse.FAILED("失敗");
-
     }
 }

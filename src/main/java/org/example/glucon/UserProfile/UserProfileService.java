@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.glucon.BaseResponse;
+import org.example.glucon.BloodPressure.BloodPressure;
 import org.example.glucon.Default.Default;
 import org.example.glucon.Default.DefaultRepository;
 import org.example.glucon.HbA1c.HbA1c;
@@ -12,11 +13,15 @@ import org.example.glucon.MedicalInfo.MedicalInfo;
 import org.example.glucon.MedicalInfo.MedicalInfoRepository;
 import org.example.glucon.Setting.Setting;
 import org.example.glucon.Setting.SettingRepository;
+import org.example.glucon.UserCare.UserCare;
 import org.example.glucon.UserCare.UserCareRepository;
+import org.example.glucon.UserProfile.Request.LastRecordRequest;
 import org.example.glucon.UserProfile.response.*;
 import org.example.glucon.UserSet.request.UserSetUpdateRequest;
 import org.example.glucon.UserSet.UserSet;
 import org.example.glucon.UserSet.UserSetRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -39,13 +44,19 @@ public class UserProfileService {
     private final HbA1cRepository HbA1cRepository;
 
     private final UserCareRepository userCareRepository;
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
     public UserResponse getUser() {
 
-        Optional<UserProfile> firstUserProfile = userProfileRepository.findFirstByOrderByIdAsc();
+        Integer loginId = (Integer) redisTemplate.opsForValue().get("loginId");
 
-        Optional<Setting> firstSetting = settingRepository.findFirstByOrderByIdAsc();
+        Optional<UserProfile> firstUserProfile = userProfileRepository.findById(loginId.longValue());
 
-        Optional<Default> firstDefault = defaultRepository.findFirstByOrderByIdAsc();
+        Optional<Setting> firstSetting = settingRepository.findById(loginId.longValue());
+
+        Optional<Default> firstDefault = defaultRepository.findById(loginId.longValue());
 
         Setting setting = Setting.builder()
                 .id(firstSetting.get().getId())
@@ -86,8 +97,9 @@ public class UserProfileService {
 
     public Optional<UserProfile> updateUserFcmId(UserSetUpdateRequest request) {
         Logger logger = LogManager.getLogger(getClass());
+        Integer loginId = (Integer) redisTemplate.opsForValue().get("loginId");
 
-        Optional<UserProfile> userProfileOptional = userProfileRepository.findFirstByOrderByIdAsc();
+        Optional<UserProfile> userProfileOptional = userProfileRepository.findById(loginId.longValue());
 
         if (!userProfileOptional.isPresent()) {
             logger.error("No UserProfile found");
@@ -102,7 +114,9 @@ public class UserProfileService {
     }
 
     public MedicalInfoResponse getMedicalInfo() {
-        Optional<MedicalInfo> firstMedicalInfo = medicalInfoRepository.findFirstByOrderByIdAsc();
+        Integer loginId = (Integer) redisTemplate.opsForValue().get("loginId");
+
+        Optional<MedicalInfo> firstMedicalInfo = medicalInfoRepository.findById(loginId.longValue());
 
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -122,8 +136,9 @@ public class UserProfileService {
     }
 
     public A1cResponse getA1c() {
+        Integer loginId = (Integer) redisTemplate.opsForValue().get("loginId");
 
-        Optional<HbA1c> firstHbA1c = HbA1cRepository.findFirstByOrderByIdAsc();
+        Optional<HbA1c> firstHbA1c = HbA1cRepository.findById(loginId.longValue());
 
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -138,10 +153,37 @@ public class UserProfileService {
     }
 
     public UserCareResponse getUserCare() {
+        Integer loginId = (Integer) redisTemplate.opsForValue().get("loginId");
+
+        List<UserCare> userCares = userCareRepository.findAllByUserId(loginId.longValue());
+
         return UserCareResponse.builder()
                 .status("0")
                 .message("ok")
-                .cares(userCareRepository.findAll())
+                .cares(userCares)
+                .build();
+    }
+
+    public BaseResponse lastRecord(LastRecordRequest request) {
+
+        var bloodPressure = LastRecordResponse.BloodPressure
+                .builder()
+                .build();
+
+        var bloodSugar = LastRecordResponse.BloodSugar
+                .builder()
+                .build();
+
+        var weights = LastRecordResponse.Weights
+                .builder()
+                .build();
+
+        return LastRecordResponse.builder()
+                .status("0")
+                .message("ok")
+                .blood_pressures(bloodPressure)
+                .blood_sugars(bloodSugar)
+                .weights(weights)
                 .build();
     }
 }
